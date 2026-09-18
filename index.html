@@ -1,0 +1,472 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>InstaFrame — turn any webpage into a studio device mockup</title>
+<meta name="description" content="Test responsive layouts in a live multi-device viewer and capture a page into realistic Apple and Android frames. One click to download or copy. Runs entirely in your browser.">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<a class="skip" href="#studio">Skip to the studio</a>
+
+<header class="nav">
+  <div class="nav__inner">
+    <a class="brand" href="#top">
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="2.5" y="4.5" width="19" height="12.5" rx="2"></rect>
+        <path d="M9 20.5h6M12 17v3.5"></path>
+        <path d="M5 9.5h5"></path>
+      </svg>
+      InstaFrame
+    </a>
+    <nav class="nav__links" aria-label="Primary">
+      <a href="#studio">Studio</a>
+      <a href="#devices">Frames</a>
+      <a href="#how">How it works</a>
+      <a href="#help">Help</a>
+    </nav>
+    <a class="btn btn--primary nav__cta" href="#studio">Open the studio</a>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero" data-od-id="hero">
+    <div class="wrap hero__grid">
+      <div class="hero__copy">
+        <p class="eyebrow">Device mockups, in the browser</p>
+        <h1>Wrap any page in a real device.</h1>
+        <p class="hero__sub">
+          Test responsive layouts in a live multi-device viewer, then capture the same page into
+          realistic Apple and Android frames. No mockup generator detour, no export queue —
+          one click to download or copy, and you are done.
+        </p>
+
+        <form class="hero__form" id="heroForm" novalidate>
+          <div class="field">
+            <label class="sr-only" for="heroUrl">Page URL to frame</label>
+            <input class="input" id="heroUrl" name="heroUrl" type="text" inputmode="url" autocomplete="url"
+                   placeholder="example.com" spellcheck="false">
+          </div>
+          <button class="btn btn--primary" type="submit">Frame it</button>
+        </form>
+
+        <p class="hero__note">
+          Runs entirely in your browser. No upload, no account, no third-party export service.
+        </p>
+      </div>
+
+      <div class="hero__stage">
+        <div class="hero__device" id="heroStage" aria-hidden="true"></div>
+        <p class="hero__devices">iPhone 15 · 393 × 852 viewport · drawn at 2×</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter chapter--pale" id="studio" data-od-id="studio">
+    <div class="wrap">
+      <div class="studio__grid">
+        <form class="panel" id="studioPanel" autocomplete="off">
+          <div class="panel__section">
+            <div class="panel__title">
+              <h3>Source</h3>
+              <span id="sourceTag">choose one</span>
+            </div>
+
+            <div class="tabs" id="srcTabs" role="tablist" aria-label="Source type">
+              <button type="button" role="tab" data-src="url" aria-selected="true" aria-controls="panelUrl">Live URL</button>
+              <button type="button" role="tab" data-src="image" aria-selected="false" aria-controls="panelImage">Screenshot</button>
+              <button type="button" role="tab" data-src="html" aria-selected="false" aria-controls="panelHtml">Local HTML</button>
+            </div>
+
+            <div id="panelUrl" role="tabpanel" aria-label="Live URL">
+              <div class="field field--url">
+                <label class="sr-only" for="urlInput">Page URL</label>
+                <input class="input" id="urlInput" name="url" type="text" inputmode="url"
+                       placeholder="https://example.com" spellcheck="false"
+                       aria-describedby="urlHint urlError">
+                <button class="icon-btn" id="urlClear" type="button" title="Clear the address" aria-label="Clear the address">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true">
+                    <path d="M6 6l12 12M18 6L6 18"></path>
+                  </svg>
+                </button>
+              </div>
+              <span class="error" id="urlError" role="alert" hidden></span>
+              <div class="row-actions">
+                <button class="btn btn--dark btn--sm" id="urlLoad" type="submit">Load in frames</button>
+                <button class="btn btn--ghost btn--sm" id="urlSample" type="button">Load the sample page</button>
+              </div>
+              <p class="hint" id="urlHint">
+                The live viewer renders the real page at each device viewport width. Sites that send
+                <code>X-Frame-Options</code> or a restrictive <code>frame-ancestors</code> will refuse to appear, and so will a host that
+                only permits frames from its own origin — for those, open the page in a tab and use a screenshot.
+              </p>
+              <div class="recent" id="recent" hidden></div>
+            </div>
+
+            <div id="panelImage" role="tabpanel" aria-label="Screenshot" hidden>
+              <label class="drop" id="dropZone" for="shotInput" tabindex="0">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M12 16V4M8 8l4-4 4 4"></path>
+                  <path d="M4 15v3.5A1.5 1.5 0 0 0 5.5 20h13a1.5 1.5 0 0 0 1.5-1.5V15"></path>
+                </svg>
+                <span class="drop__title">Drop a screenshot, or click to choose</span>
+                <span class="drop__meta">PNG, JPEG, WebP, GIF or AVIF · any size</span>
+              </label>
+              <input class="sr-only" id="shotInput" name="shot" type="file" accept="image/*">
+              <div class="row-actions">
+                <button class="btn btn--ghost btn--sm" id="shotPaste" type="button">Paste from clipboard</button>
+              </div>
+              <div class="shot" id="shotInfo" hidden>
+                <img id="shotThumb" alt="Preview of the screenshot you loaded">
+                <div class="shot__meta">
+                  <span class="shot__name" id="shotName"></span>
+                </div>
+                <button class="btn btn--ghost btn--sm" id="shotRemove" type="button">Remove</button>
+              </div>
+              <p class="hint">Pasting with ⌘V or Ctrl+V works anywhere on this page.</p>
+            </div>
+
+            <div id="panelHtml" role="tabpanel" aria-label="Local HTML" hidden>
+              <div class="field">
+                <label class="sr-only" for="htmlInput">Local HTML file</label>
+                <input class="input" id="htmlInput" name="htmlFile" type="file" accept=".html,.htm,text/html">
+              </div>
+              <div class="shot" id="htmlInfo" hidden>
+                <div class="shot__meta">
+                  <span class="shot__name" id="htmlName"></span>
+                </div>
+                <button class="btn btn--ghost btn--sm" id="htmlRemove" type="button">Remove</button>
+              </div>
+              <div class="row-actions">
+                <button class="btn btn--dark btn--sm" id="htmlCapture" type="button">Capture into frames</button>
+              </div>
+              <p class="hint">
+                The file is rendered from memory, so relative images and remote stylesheets will not
+                resolve — inline what the page needs. Capture works on that in-memory document only;
+                a cross-origin page cannot be read by the browser, which is why screenshots exist.
+              </p>
+            </div>
+          </div>
+
+          <div class="panel__section">
+            <div class="panel__title">
+              <h3>Frames</h3>
+              <span id="frameCount">2 selected</span>
+            </div>
+            <div class="chips" id="deviceList"></div>
+            <div class="chips__tools">
+              <button class="btn btn--quiet btn--sm" id="btnSelectAll" type="button">Select all six</button>
+              <button class="btn btn--quiet btn--sm" id="btnSelectNone" type="button">Clear</button>
+            </div>
+          </div>
+
+          <div class="panel__section">
+            <div class="panel__title">
+              <h3>Output</h3>
+              <span>applies to the mockup</span>
+            </div>
+            <div class="opt">
+              <div class="opt__row">
+                <span class="opt__label" id="fitLabel">Fit</span>
+                <div class="seg" id="fitSeg" role="group" aria-labelledby="fitLabel">
+                  <label><input type="radio" name="fit" value="top" checked>Top</label>
+                  <label><input type="radio" name="fit" value="fill">Fill</label>
+                  <label><input type="radio" name="fit" value="fit">Contain</label>
+                </div>
+              </div>
+              <div class="opt__row">
+                <label class="opt__label" for="bgSelect">Background</label>
+                <select class="select" id="bgSelect">
+                  <option value="transparent">Transparent</option>
+                  <option value="white">White</option>
+                  <option value="pale">Pale gray</option>
+                  <option value="black">Black</option>
+                  <option value="studio">Studio glow</option>
+                </select>
+              </div>
+              <div class="opt__row">
+                <label class="opt__label" for="scaleSelect">Export scale</label>
+                <select class="select" id="scaleSelect">
+                  <option value="1">1× — draft</option>
+                  <option value="2" selected>2× — recommended</option>
+                  <option value="3">3× — close-ups</option>
+                </select>
+              </div>
+              <div class="opt__row" id="orientationRow" hidden>
+                <label class="opt__label" for="orientationSelect">Tablet orientation</label>
+                <select class="select" id="orientationSelect">
+                  <option value="landscape">Landscape</option>
+                  <option value="portrait">Portrait</option>
+                </select>
+              </div>
+              <div class="opt__row">
+                <label class="check"><input type="checkbox" id="chkChrome" checked> Device chrome (island, camera, buttons)</label>
+                <label class="check"><input type="checkbox" id="chkShadow" checked> Drop shadow</label>
+                <label class="check"><input type="checkbox" id="chkLabel"> Device label under the mockup</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel__section">
+            <div class="panel__title">
+              <h3>Take it away</h3>
+              <span id="scaleTag">2×</span>
+            </div>
+            <div class="actions">
+              <button class="btn btn--primary btn--block" id="btnDownload" type="button">Download PNG</button>
+              <div class="row action-split">
+                <button class="btn btn--ghost" id="btnCopy" type="button">Copy image</button>
+                <button class="btn btn--ghost" id="btnAll" type="button">Download all</button>
+              </div>
+            </div>
+            <p class="kbd-line">
+              <b>1</b>–<b>6</b> toggle frames · <b>⌘V</b> paste a screenshot · transparent is the default background
+            </p>
+          </div>
+        </form>
+
+        <div class="stage" id="stage" data-od-id="stage">
+          <div class="stage__head">
+            <div class="stage__tabs" id="stageTabs" role="tablist" aria-label="Stage mode">
+              <button type="button" role="tab" data-mode="live" aria-selected="false">Live preview</button>
+              <button type="button" role="tab" data-mode="mock" aria-selected="true">Mockup</button>
+            </div>
+            <div class="stage__spacer"></div>
+            <div class="stage__ctl">
+              <label for="zoomSelect">Zoom</label>
+              <select id="zoomSelect">
+                <option value="fit" selected>Fit</option>
+                <option value="relative">Relative size</option>
+                <option value="1">100%</option>
+                <option value="0.75">75%</option>
+                <option value="0.5">50%</option>
+                <option value="0.35">35%</option>
+                <option value="0.2">20%</option>
+              </select>
+              <button id="btnReload" type="button">Reload</button>
+              <a id="btnOpen" href="#" target="_blank" rel="noopener noreferrer" hidden>Open page ↗</a>
+            </div>
+          </div>
+          <div class="stage__body">
+            <p class="notice" id="stageNotice" hidden></p>
+            <div class="frames" id="frames"></div>
+            <div class="empty" id="stageEmpty" hidden>
+              <h3>No frames selected</h3>
+              <p>Pick at least one device in the Frames list. All six can render at once, side by side, at their real viewport widths.</p>
+              <button class="btn btn--primary" id="btnSelectAllFromEmpty" type="button">Select all six</button>
+            </div>
+            <p class="status" id="status" role="status" aria-live="polite"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter chapter--white" id="devices" data-od-id="device-specs">
+    <div class="wrap">
+      <div class="chapter__head">
+        <p class="eyebrow">The frames</p>
+        <h2>Real viewports, real panels.</h2>
+        <p>
+          Every frame is built from the published figures for that device. The mockup viewport is the
+          CSS width the frame renders at; the native panel is the physical screen behind it.
+        </p>
+      </div>
+      <div class="table-card">
+        <table class="spec">
+          <caption>Panel figures are the manufacturer-published resolutions. Nothing here is rounded to look tidy.</caption>
+          <thead>
+            <tr>
+              <th scope="col">Device</th>
+              <th scope="col">Mockup viewport</th>
+              <th scope="col">Native panel</th>
+              <th scope="col">Density</th>
+              <th scope="col">Frame traits</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">Pro Display XDR</th>
+              <td class="num" data-label="Viewport">1600 × 900</td>
+              <td class="num" data-label="Panel">6016 × 3384</td>
+              <td class="num" data-label="Density">218 ppi</td>
+              <td>Thin uniform bezel · Pro Stand · no notch</td>
+            </tr>
+            <tr>
+              <th scope="row">MacBook Air 13"</th>
+              <td class="num" data-label="Viewport">1280 × 832</td>
+              <td class="num" data-label="Panel">2560 × 1664</td>
+              <td class="num" data-label="Density">224 ppi</td>
+              <td>Lid notch and camera · aluminium deck</td>
+            </tr>
+            <tr>
+              <th scope="row">iPad Pro</th>
+              <td class="num" data-label="Viewport">1366 × 1024</td>
+              <td class="num" data-label="Panel">2732 × 2048</td>
+              <td class="num" data-label="Density">264 ppi</td>
+              <td>Uniform bezel · punched camera · rotates</td>
+            </tr>
+            <tr>
+              <th scope="row">iPhone 15</th>
+              <td class="num" data-label="Viewport">393 × 852</td>
+              <td class="num" data-label="Panel">1179 × 2556</td>
+              <td class="num" data-label="Density">460 ppi</td>
+              <td>Dynamic Island · Action button · titanium rails</td>
+            </tr>
+            <tr>
+              <th scope="row">Galaxy S24 Ultra</th>
+              <td class="num" data-label="Viewport">384 × 832</td>
+              <td class="num" data-label="Panel">1440 × 3120</td>
+              <td class="num" data-label="Density">505 ppi</td>
+              <td>Flat titanium rails · centred punch-hole</td>
+            </tr>
+            <tr>
+              <th scope="row">Pixel 8</th>
+              <td class="num" data-label="Viewport">412 × 915</td>
+              <td class="num" data-label="Panel">1080 × 2400</td>
+              <td class="num" data-label="Density">428 ppi</td>
+              <td>Polished aluminium frame · centred punch-hole</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter chapter--pale" id="how" data-od-id="how-it-works">
+    <div class="wrap">
+      <div class="chapter__head">
+        <p class="eyebrow">How it works</p>
+        <h2>Four moves, one screen.</h2>
+      </div>
+      <div class="steps">
+        <div class="step">
+          <div class="step__n">01</div>
+          <div class="step__body">
+            <h3>Point it somewhere</h3>
+            <p>Paste a URL, open a local HTML file, or drop in a screenshot. Nothing is uploaded — the studio is a static page and the image never leaves your machine.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step__n">02</div>
+          <div class="step__body">
+            <h3>Pick the frames</h3>
+            <p>All six can be on stage at once — a 384-pixel phone and a 1600-pixel display, each rendering the page at its real viewport width. Toggle any frame with the number keys.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step__n">03</div>
+          <div class="step__body">
+            <h3>Check the layout, then compose</h3>
+            <p>The live viewer renders the real page at each width. Switch to the mockup stage to place the page inside the frame and set how it sits in the screen: fit, background, chrome, shadow, scale.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step__n">04</div>
+          <div class="step__body">
+            <h3>Download or copy</h3>
+            <p>PNG at 1×, 2× or 3×, transparent by default, straight onto the clipboard if you prefer. Download all selected frames in one pass.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="chapter chapter--white" id="help" data-od-id="faq">
+    <div class="wrap">
+      <div class="chapter__head">
+        <p class="eyebrow">Help</p>
+        <h2>What it can and cannot do.</h2>
+      </div>
+      <div class="faq">
+        <details>
+          <summary>Can InstaFrame capture any live site by itself?</summary>
+          <p>
+            A browser cannot read the pixels of a cross-origin page — that is a security boundary, not a
+            missing feature. So the workflow is split: the live viewer shows any page that allows
+            embedding, and the export composes from a screenshot, which gives you a pixel-perfect result
+            for any site, logged-in pages included.
+          </p>
+        </details>
+        <details>
+          <summary>Why does a live frame stay blank?</summary>
+          <p>
+            The site sent <code>X-Frame-Options: DENY</code> or a <code>frame-ancestors</code> rule that excludes
+            other origins. Open it in a new tab from the frame caption, take a screenshot, and drop that
+            into the studio — the frame chrome will be identical.
+          </p>
+        </details>
+        <details>
+          <summary>Where do my screenshots go?</summary>
+          <p>
+            Nowhere. There is no server, no account and no upload: the app is a static page, the image is
+            held in memory, and the PNG is composed on your own canvas. Closing the tab clears it.
+          </p>
+        </details>
+        <details>
+          <summary>Is a 3× export upscaled?</summary>
+          <p>
+            No. The frame, the bezel, the island and the shadow are drawn as vectors at the export scale,
+            so a 3× mockup gets a crisp 3× frame. Only the page image inside the screen is limited by the
+            resolution of the screenshot you supplied.
+          </p>
+        </details>
+        <details>
+          <summary>Are these the manufacturers' official device images?</summary>
+          <p>
+            No. Each frame is an original vector interpretation built from the published screen dimensions,
+            corner radii and hardware features. Device names and trademarks belong to their owners and are
+            used here for identification only. InstaFrame is not affiliated with, or endorsed by, Apple,
+            Samsung or Google.
+          </p>
+        </details>
+        <details>
+          <summary>Does it work offline?</summary>
+          <p>
+            Yes. There are no external requests at all — no CDN, no webfonts, no analytics. Open the page
+            from a local file or any static host and every feature except clipboard access behaves the same.
+          </p>
+        </details>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot__grid">
+      <div>
+        <p class="foot__title">InstaFrame</p>
+        <p>Live responsive testing and studio device mockups, in one static page.</p>
+      </div>
+      <div>
+        <p class="foot__title">Studio</p>
+        <ul>
+          <li><a href="#studio">Mockup composer</a></li>
+          <li><a href="#studio">Live multi-device viewer</a></li>
+          <li><a href="#devices">Frame specifications</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="foot__title">Reference</p>
+        <ul>
+          <li><a href="#how">How it works</a></li>
+          <li><a href="#help">Limits and answers</a></li>
+        </ul>
+      </div>
+    </div>
+    <p class="foot__legal">
+      Device names and marks are the property of their respective owners and are used for identification
+      only. InstaFrame draws its own vector chrome and is not affiliated with, sponsored by, or endorsed
+      by Apple, Samsung or Google. Built by DeenVeloper.
+    </p>
+  </div>
+</footer>
+
+<script src="js/devices.js"></script>
+<script src="js/exporter.js"></script>
+<script src="js/studio.js"></script>
+</body>
+</html>

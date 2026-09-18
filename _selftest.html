@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>InstaFrame — smoke test</title>
+<style>
+  :root { color-scheme: light; }
+  body {
+    margin: 0;
+    padding: 32px;
+    background: #f5f5f7;
+    color: #1d1d1f;
+    font: 15px/1.5 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+  }
+  h1 { font-size: 24px; letter-spacing: -0.02em; margin: 0 0 6px; }
+  p.lede { color: #6e6e73; margin: 0 0 22px; max-width: 70ch; }
+  .grid { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; }
+  iframe { width: 1180px; height: 820px; border: 1px solid #d2d2d7; border-radius: 12px; background: #fff; }
+  pre {
+    flex: 1 1 320px;
+    margin: 0;
+    padding: 18px;
+    background: #1d1d1f;
+    color: #f5f5f7;
+    border-radius: 12px;
+    font: 12px/1.6 ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    white-space: pre-wrap;
+    min-width: 300px;
+    min-height: 200px;
+  }
+  .ok { color: #6ee7a8; }
+  .fail { color: #ff8f8f; }
+  .skip { color: #ffd08a; }
+</style>
+</head>
+<body>
+<h1>InstaFrame — smoke test</h1>
+<p class="lede">
+  Loads <code>index.html</code> in a same-origin frame and checks that the frame geometry, the DOM
+  device shells and the canvas exporter all produce output. Serve this over HTTP (any static server)
+  — browsers block a local page from reading another local page, so the checks cannot run over
+  <code>file://</code>.
+</p>
+<div class="grid">
+  <iframe id="app" src="index.html" title="InstaFrame under test"></iframe>
+  <pre id="out">running…</pre>
+</div>
+<script src="_harness.js"></script>
+</body>
+</html>
