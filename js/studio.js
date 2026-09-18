@@ -448,21 +448,18 @@
       open.textContent = 'Open ↗';
       meta.appendChild(open);
     }
-    frame.appendChild(meta);
-
-    if (iframe && src) {
-      var settled = false;
-      var timer = window.setTimeout(function () {
-        if (settled) return;
-        settled = true;
-        if (stage.querySelector('.frame__overlay')) return;
-        stage.appendChild(overlayCard('refused', src));
-      }, 5000);
-      iframe.addEventListener('load', function () {
-        settled = true;
-        window.clearTimeout(timer);
-      });
+    /* A cross-origin frame gives no reliable signal for "rendered" versus
+       "refused" — the error page fires load just like a real page does. So
+       never guess with a timer: every frame carries the recovery path. */
+    if (iframe) {
+      var shot = el('button', 'frame__meta-btn');
+      shot.type = 'button';
+      shot.textContent = 'Screenshot →';
+      shot.title = 'Frame blank? Compose this device from a screenshot instead.';
+      shot.addEventListener('click', goToScreenshot);
+      meta.appendChild(shot);
     }
+    frame.appendChild(meta);
 
     return frame;
   }
@@ -589,7 +586,7 @@
       if (state.frameSupport === false) {
         notice('The host serving this page allows frames from one origin only, so no site can be embedded here. The mockup composer is unaffected — and the live viewer works normally when you open this file locally or host it yourself.', 'warn');
       } else {
-        notice('Frames render the real page at its true viewport width. If one stays blank, that site refuses to be embedded (X-Frame-Options or a frame-ancestors rule) — open it in a tab and drop a screenshot in instead.', 'hint');
+        notice('Frames render the real page at its true viewport width. A frame that stays blank means that site refused to be embedded (X-Frame-Options or a frame-ancestors rule) — use “Screenshot →” under that frame to compose it instead.', 'hint');
       }
     } else if (!state.image) {
       notice(state.frameSupport === false
@@ -727,10 +724,17 @@
     if (u.protocol !== 'http:' && u.protocol !== 'https:') {
       return { error: 'Only http and https pages can be loaded in a frame.' };
     }
+    /* A secure page cannot frame an insecure document — browsers block it as
+       mixed content and the frame just sits there empty. Upgrade instead. */
+    var upgraded = false;
+    if (u.protocol === 'http:' && location.protocol === 'https:') {
+      u = new URL(u.href.replace(/^http:/, 'https:'));
+      upgraded = true;
+    }
     if (!u.hostname || u.hostname.indexOf('.') === -1) {
       return { error: 'That address has no domain in it. Try example.com.' };
     }
-    return { url: u.href };
+    return { url: u.href, upgraded: upgraded };
   }
 
   function showUrlError(msg) {
@@ -755,6 +759,9 @@
     state.recent = [res.url].concat(state.recent.filter(function (u) { return u !== res.url; })).slice(0, 4);
     syncControls();
     renderStage(true);
+    if (res.upgraded) {
+      notice('Loaded over https. A secure page cannot frame an http:// document, so the address was upgraded — if that site has no https, open it in a tab and use a screenshot.', 'warn');
+    }
     say('Loading ' + res.url + ' in ' + selectedDevices().length + ' frame(s).');
     save();
   }

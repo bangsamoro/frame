@@ -93,8 +93,9 @@ all and asserts the behaviour that host should produce.
   permit embedding; the export composes from a screenshot, which works for any
   site, logged-in pages included.
 - **Sites that send `X-Frame-Options` or a restrictive `frame-ancestors` will
-  not appear in a frame**, anywhere. Each frame says so in place and offers a
-  one-click route to the composer.
+  not appear in a frame**, anywhere. From inside the page a refused frame is
+  indistinguishable from a slow one, so InstaFrame does not guess: every frame
+  carries a `Screenshot →` control that routes it straight to the composer.
 - **A host whose Content-Security-Policy restricts `frame-src` blocks frames
   entirely** (external and in-memory alike). InstaFrame probes for this at
   startup and marks the document `data-frames="blocked"` so the viewer explains

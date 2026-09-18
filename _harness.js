@@ -310,6 +310,22 @@
           check('shell size equals screen plus bezel',
             !!iShell && iShell.style.width === '417px' && iShell.style.height === '876px',
             iShell ? iShell.style.width + ' × ' + iShell.style.height : 'none');
+
+          /* the watchdog that used to guess "refused" is gone — it fired on slow
+             pages and stayed on top of pages that loaded fine */
+          check('no frame claims a refusal that never happened',
+            doc.querySelectorAll('.frame__overlay').length === 0,
+            doc.querySelectorAll('.frame__overlay').length + ' overlays on an open host');
+          var shotBtns = doc.querySelectorAll('.frame__meta-btn');
+          check('every live frame offers the screenshot route',
+            shotBtns.length === doc.querySelectorAll('.frame--live').length,
+            shotBtns.length + ' for ' + doc.querySelectorAll('.frame--live').length + ' frames');
+          if (shotBtns.length) {
+            shotBtns[0].click();
+            check('the screenshot route jumps to the composer',
+              win.IF.app.state.source === 'image' && win.IF.app.state.mode === 'mock',
+              win.IF.app.state.source + '/' + win.IF.app.state.mode);
+          }
         } else {
           check('every blocked frame explains itself in place',
             doc.querySelectorAll('.frame__overlay').length === doc.querySelectorAll('.frame--live').length,

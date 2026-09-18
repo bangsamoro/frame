@@ -608,6 +608,18 @@ input[type="file"].input { padding: 10px 12px; font-size: 13px; color: var(--mut
 }
 .frame__meta-link { color: rgba(255, 255, 255, 0.78); font-size: 12px; }
 .frame__meta-link:hover { color: #fff; }
+.frame__meta-btn {
+  background: transparent;
+  border: 0;
+  padding: 5px 7px;
+  margin: -5px -7px;
+  font: inherit;
+  color: rgba(255, 255, 255, 0.78);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.frame__meta-btn:hover { color: #fff; }
 .frame__meta-tag { color: rgba(255, 255, 255, 0.45); }
 
 .status {
