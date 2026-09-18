@@ -316,6 +316,9 @@
           check('no frame claims a refusal that never happened',
             doc.querySelectorAll('.frame__overlay').length === 0,
             doc.querySelectorAll('.frame__overlay').length + ' overlays on an open host');
+          check('the live hint names the message the user actually sees',
+            /refused to connect/i.test(doc.querySelector('#stageNotice').textContent),
+            doc.querySelector('#stageNotice').textContent.slice(0, 58));
           var shotBtns = doc.querySelectorAll('.frame__meta-btn');
           check('every live frame offers the screenshot route',
             shotBtns.length === doc.querySelectorAll('.frame--live').length,

@@ -364,13 +364,22 @@
     });
   }
 
-  function goToScreenshot() {
+  function goToScreenshot(src) {
     state.source = 'image';
     state.mode = 'mock';
     syncControls();
     renderStage(true);
+    var plain = 'Drop a screenshot or paste one with \u2318V — the composer takes it from there.';
+    /* Hand the user the address so the capture round-trip is: open, capture,
+       paste. writeText is allowed inside a click gesture, Safari included. */
+    if (typeof src === 'string' && src && navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(src).then(function () {
+        say('Address copied to the clipboard. Open it in a new tab, capture the screen, then paste it here.');
+      }).catch(function () { say(plain); });
+    } else {
+      say(plain);
+    }
     try { els.dropZone.focus(); } catch (e) { /* focus is best effort */ }
-    say('Drop a screenshot or paste one with ⌘V — the composer takes it from there.');
   }
 
   function overlayCard(kind, src) {
@@ -382,11 +391,11 @@
     if (kind === 'env') {
       title.textContent = 'This host blocks frames';
       body.textContent = 'Its Content-Security-Policy only allows frames from a single origin, so no site can be embedded here. The mockup composer is unaffected — and the live viewer works if you open this file locally or host it yourself.';
-      actions.appendChild(overlayBtn('Use the mockup composer', goToScreenshot));
+      actions.appendChild(overlayBtn('Use the mockup composer', function () { goToScreenshot(src); }));
     } else {
       title.textContent = 'This site refuses to be embedded';
       body.textContent = 'It answered with X-Frame-Options or a frame-ancestors rule. Open it in a tab, take a screenshot, and drop it in — the frame chrome is identical.';
-      actions.appendChild(overlayBtn('Use a screenshot', goToScreenshot));
+      actions.appendChild(overlayBtn('Use a screenshot', function () { goToScreenshot(src); }));
     }
     if (src) {
       var link = el('a', 'frame__overlay-link');
@@ -456,7 +465,7 @@
       shot.type = 'button';
       shot.textContent = 'Screenshot →';
       shot.title = 'Frame blank? Compose this device from a screenshot instead.';
-      shot.addEventListener('click', goToScreenshot);
+      shot.addEventListener('click', function () { goToScreenshot(src); });
       meta.appendChild(shot);
     }
     frame.appendChild(meta);
@@ -586,7 +595,7 @@
       if (state.frameSupport === false) {
         notice('The host serving this page allows frames from one origin only, so no site can be embedded here. The mockup composer is unaffected — and the live viewer works normally when you open this file locally or host it yourself.', 'warn');
       } else {
-        notice('Frames render the real page at its true viewport width. A frame that stays blank means that site refused to be embedded (X-Frame-Options or a frame-ancestors rule) — use “Screenshot →” under that frame to compose it instead.', 'hint');
+        notice('A frame that says “refused to connect” is the site blocking embedding with its own X-Frame-Options — no browser tool can override that. Use “Screenshot →” under the frame: open it in a tab, capture the screen, paste it in.', 'hint');
       }
     } else if (!state.image) {
       notice(state.frameSupport === false
